@@ -10,12 +10,12 @@
 using std::cout, std::endl, std::bitset, std::vector, std::array, std::string, std::map;
 
 
-const int DIM = 3;
+const int DIM = 4;
 const int VERTICES = 1 << DIM;
 const int EDGES = DIM << (DIM - 1);
 
 // iteration order of cube edges is first by axis (left to right with x=[0]), then by lexicographic of remaining axes
-const bitset<EDGES> encoding_edges(string("010100000111")); // edge 0 is on the right
+const bitset<EDGES> encoding_edges(string("00000000101110111010101011101111")); // edge 0 is on the right
 const size_t NUM_ENCODING = EDGES - VERTICES + 1;
 
 struct path {
@@ -83,7 +83,7 @@ int main() {
 	for (path& p : cur_paths)
 		encodings_maps[p.pos.to_ulong()].emplace(p.partial_count(), p);
 
-	const int MAX_DEPTH = 30;
+	const int MAX_DEPTH = 10;
 	for (int depth = 1; depth < MAX_DEPTH; ++depth) {
 		cout << "Doing depth " << depth << endl;
 		swap(cur_paths, prev_paths);
