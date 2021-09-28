@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -82,7 +83,7 @@ int main() {
 	for (path& p : cur_paths)
 		encodings_maps[p.pos.to_ulong()].emplace(p.partial_count(), p);
 
-	const int MAX_DEPTH = 100;
+	const int MAX_DEPTH = 30;
 	for (int depth = 1; depth < MAX_DEPTH; ++depth) {
 		cout << "Doing depth " << depth << endl;
 		swap(cur_paths, prev_paths);
@@ -119,5 +120,19 @@ int main() {
 			}
 		}
 	}
+
+	std::ofstream outfile("cube_traversal_" + encoding_edges.to_string() + ".txt"); 
+	outfile << "CT1 " << 0 << ' ' << DIM << ' ' << encoding_edges.to_string() << ' ' << zero_path.pos.to_ulong() << endl;;
+	for (auto& m : encodings_maps) { 
+		outfile << m.size() << '\n';
+		for (auto& p : m) {
+			for (short s : p.first)
+				outfile << s << ' ';
+			outfile << '\n' << p.second.ppath << '\n';
+		}
+	}
+	outfile << endl;
+	outfile.close();
+
 	cout << "Done!" << endl;
 }
