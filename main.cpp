@@ -121,7 +121,7 @@ int main() {
 		}
 	}
 
-	std::ofstream outfile("cube_traversal_" + encoding_edges.to_string() + ".txt"); 
+	std::ofstream outfile("cube_traversal_" + encoding_edges.to_string() + + "_" + std::to_string(MAX_DEPTH) + ".txt"); 
 	outfile << "CT1 " << 0 << ' ' << DIM << ' ' << encoding_edges.to_string() << ' ' << zero_path.pos.to_ulong() << endl;;
 	for (auto& m : encodings_maps) { 
 		outfile << m.size() << '\n';
