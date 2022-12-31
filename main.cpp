@@ -6,6 +6,7 @@
 #include <bitset>
 #include <array>
 #include <map>
+#include <optional>
 
 using std::cout, std::endl, std::bitset, std::vector, std::array, std::string, std::map;
 
@@ -75,13 +76,16 @@ int main() {
 		return -1;
 	}
 
-	array<map<array<short, NUM_ENCODING>, path>, VERTICES> encodings_maps;
+	array<map<array<short, NUM_ENCODING>, vector<path>>, VERTICES> encodings_maps;
 	vector<path> cur_paths, prev_paths;
 	path zero_path(bitset<DIM>(0), -1, {});
 	for (int i = 0; i < DIM; ++i)
 		cur_paths.emplace_back(zero_path, i);
-	for (path& p : cur_paths)
-		encodings_maps[p.pos.to_ulong()].emplace(p.partial_count(), p);
+	for (path& p : cur_paths) {
+		vector<path> v;
+		v.push_back(p);
+		encodings_maps[p.pos.to_ulong()].emplace(p.partial_count(), v);
+	}
 
 	const int MAX_DEPTH = 30;
 	for (int depth = 1; depth < MAX_DEPTH; ++depth) {
@@ -91,31 +95,34 @@ int main() {
 		for (const path& p : prev_paths) {
 			// cout << p.pos << endl;
 			for (int d = 0; d < DIM; ++d) {
-				if (d != p.prev_dir) {
+				if (true) { //(d != p.prev_dir) {
 					path n(p, d);
 					auto search = encodings_maps[n.pos.to_ulong()].find(n.partial_count());
 					if (search != encodings_maps[n.pos.to_ulong()].end()) {
-						if (search->second.full_count != n.full_count) {
-							cout << "ffc:\n";
-							for (short s : search->second.full_count)
-								cout << s << ' ';
-							cout << "\nfpc:\n";
-							for (short s : search->second.partial_count())
-								cout << s << ' ';
-							cout << "\nsfc:\n";
-							for (short s : n.full_count)
-								cout << s << ' ';
-							cout << "\nspc:\n";
-							for (short s : n.partial_count())
-								cout << s << ' ';
-							cout << endl;
-							throw std::runtime_error("Two pathways have different partial counts: " + n.ppath + ", " + search->second.ppath);
+						if (search->second[0].full_count != n.full_count) {
+							// cout << "ffc:\n";
+							// for (short s : search->second[0].full_count)
+							// 	cout << s << ' ';
+							// cout << "\nfpc:\n";
+							// for (short s : search->second[0].partial_count())
+							// 	cout << s << ' ';
+							// cout << "\nsfc:\n";
+							// for (short s : n.full_count)
+							// 	cout << s << ' ';
+							// cout << "\nspc:\n";
+							// for (short s : n.partial_count())
+							// 	cout << s << ' ';
+							// cout << endl;
+							// throw std::runtime_error("Two pathways have different partial counts: " + n.ppath + ", " + search->second[0].ppath);
 						} else {
+							encodings_maps[n.pos.to_ulong()][n.partial_count()].push_back(n);
 							continue;
 						}
 					}
 					cur_paths.push_back(n);
-					encodings_maps[n.pos.to_ulong()].emplace(n.partial_count(), n);
+					vector<path> v;
+					v.push_back(p);
+					encodings_maps[n.pos.to_ulong()].emplace(n.partial_count(), v);
 				}
 			}
 		}
@@ -128,7 +135,9 @@ int main() {
 		for (auto& p : m) {
 			for (short s : p.first)
 				outfile << s << ' ';
-			outfile << '\n' << p.second.ppath << '\n';
+			outfile << "with " << p.second.size() << " paths to follow:\n";
+			for (path& pp : p.second)
+				outfile << pp.ppath << '\n';
 		}
 	}
 	outfile << endl;
